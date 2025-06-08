@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Coin (QRC) - Scan Your Way to the Future!</title>
+    <meta name="description" content="Join QR Coin (QRC) - The community-driven meme coin on Solana, inspired by the everyday utility of QR codes. Buy $QRC on pump.fun and be part of the future!">
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 for custom popups -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.26/dist/sweetalert2.min.css">
+    <!-- Google Fonts (Poppins) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS for styling -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body id="top">
+    <header class="text-center py-3 bg-light shadow-sm position-relative">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="header-logo-title">
+                <img src="qr-coin-logo.png" alt="QR Coin Logo" id="coinLogo" style="width: 70px; height: auto; margin-bottom: 5px;">
+                <h1>QR Coin (QRC)</h1>
+            </div>
+            <a href="#qr-generator-tool" id="navToGenerator" class="btn btn-outline-primary btn-sm nav-tool-btn">
+                <i class="fas fa-qrcode"></i> Create Your QR
+            </a>
+        </div>
+        <p class="lead mt-2">Scan your way to the future! The community coin that connects everything.</p>
+    </header>
+
+    <div class="container mt-4">
+        <!-- Buy Now & Contract Address Section -->
+        <section id="buy-now" class="text-center p-4 my-4 bg-white rounded shadow-lg">
+            <h2><i class="fas fa-rocket"></i> Blast Off with QR Coin!</h2>
+            <p>$QRC is now LIVE! Fair launch on pump.fun - get in early!</p>
+            <a href="YOUR_PUMP_FUN_LINK_HERE" id="buyCoinLink" target="_blank" rel="noopener noreferrer" class="btn btn-success btn-lg my-2">
+                <i class="fas fa-shopping-cart"></i> Buy $QRC on pump.fun
+            </a>
+            <small class="d-block text-muted mb-2">(You'll be redirected to pump.fun - the fairest launchpad on Solana)</small>
+            <div class="mt-3">
+                <label for="contractAddress" class="form-label"><strong>Contract Address (CA):</strong></label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="contractAddress" value="YOUR_COIN_CONTRACT_ADDRESS_HERE" readonly>
+                    <button class="btn btn-outline-secondary" id="copyCaBtn" data-clipboard-target="#contractAddress">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                 <small class="form-text text-muted">Solana Network. Double-check address. Use for pump.fun if needed.</small>
+            </div>
+        </section>
+
+        <!-- How to Buy Section -->
+        <section id="how-to-buy" class="my-4 p-3 bg-light rounded shadow">
+            <h2 class="text-center"><i class="fas fa-wallet"></i> How to Buy $QRC (Easy Steps)</h2>
+            <div class="row mt-3 gy-3">
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3 text-center border rounded h-100">
+                        <i class="fas fa-download fa-2x text-primary mb-2"></i>
+                        <h5>1. Get a Wallet</h5>
+                        <p class="small">Download <a href="https://phantom.app/" target="_blank" rel="noopener noreferrer">Phantom</a> or <a href="https://solflare.com/" target="_blank" rel="noopener noreferrer">Solflare</a> wallet (browser extension or mobile).</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3 text-center border rounded h-100">
+                        <i class="fas fa-coins fa-2x text-primary mb-2"></i>
+                        <h5>2. Add SOL</h5>
+                        <p class="small">Buy SOL on an exchange (like Binance, Coinbase, Kraken) and send it to your Solana wallet address.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3 text-center border rounded h-100">
+                        <i class="fas fa-external-link-alt fa-2x text-primary mb-2"></i>
+                        <h5>3. Go to Pump.fun</h5>
+                        <p class="small">Click the "Buy $QRC on pump.fun" button on this page, or go directly to our <a href="YOUR_PUMP_FUN_LINK_HERE" id="pumpLinkInHowToBuy" target="_blank" rel="noopener noreferrer">pump.fun page</a>.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="p-3 text-center border rounded h-100">
+                        <i class="fas fa-exchange-alt fa-2x text-primary mb-2"></i>
+                        <h5>4. Swap SOL for $QRC</h5>
+                        <p class="small">Connect your wallet on pump.fun, enter the amount of SOL you want to swap, and confirm the transaction.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tokenomics Section -->
+        <section id="tokenomics" class="my-4 p-3 bg-white rounded shadow">
+            <h2 class="text-center"><i class="fas fa-chart-pie"></i> $QRC Tokenomics</h2>
+            <div class="row mt-3 text-center gy-3">
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-2 border rounded h-100">
+                        <strong>Total Supply</strong><br>1,000,000,000 $QRC
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-2 border rounded h-100">
+                        <strong>Launch</strong><br>Pump.fun (Fair Launch)
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-2 border rounded h-100">
+                        <strong>Liquidity</strong><br>To Raydium, LP Burned
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-2 border rounded h-100">
+                        <strong>Taxes</strong><br>0% Buy / 0% Sell
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="my-4 p-3 bg-white rounded shadow">
+            <h2 class="text-center"><i class="fas fa-info-circle"></i> What is QR Coin?</h2>
+            <p>Just as QR codes became an integral part of our daily lives, QR Coin offers a fast, easy, and innovative way to interact in the blockchain world. We believe the future is digital and interconnected, and QR Coin is your token to access it.</p>
+            <p><strong>Our Mission:</strong> To build a strong, fun community around the idea of instant access and seamless connection. QR Coin is more than just a meme; it's a symbol of how technology simplifies our lives. Scan the fun, join the $QRC revolution!</p>
+        </section>
+
+        <!-- Why QR Coin? (Features) -->
+        <section id="features" class="my-4 p-3 bg-light rounded shadow">
+            <h2 class="text-center"><i class="fas fa-star"></i> Why $QRC?</h2>
+            <div class="row text-center gy-3">
+                <div class="col-md-4">
+                    <div class="p-3 border rounded h-100 feature-box">
+                        <i class="fas fa-bolt fa-3x text-primary mb-2"></i>
+                        <h4>Instantly Recognizable</h4>
+                        <p>Familiar concept, symbolizing speed & tech.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                     <div class="p-3 border rounded h-100 feature-box">
+                        <i class="fas fa-users-cog fa-3x text-primary mb-2"></i>
+                        <h4>Community Powered</h4>
+                        <p>Join our active community. Your voice matters!</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 border rounded h-100 feature-box">
+                        <i class="fas fa-gem fa-3x text-primary mb-2"></i>
+                        <h4>Fair & Transparent</h4>
+                        <p>Launched on pump.fun. LP to Raydium.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- QR Generator Tool Section -->
+        <section id="qr-generator-tool" class="my-4 p-3 bg-white rounded shadow">
+            <h2 class="text-center"><i class="fas fa-qrcode"></i> QR Code Utility</h2>
+            <p class="text-center">Generate a QR code for any text/URL, or create one to easily share $QRC!</p>
+            <div class="mb-3">
+                <label for="inputText" class="form-label">Enter text or URL to generate a QR code:</label>
+                <input type="text" class="form-control" id="inputText" placeholder="e.g., https://qrcointothemoon.com">
+            </div>
+            <div class="text-center mt-2">
+                <button class="btn btn-primary" id="generateBtn"><i class="fas fa-magic"></i> Generate Custom QR</button>
+                <button class="btn btn-info ms-2" id="generateCoinQRBtn">
+                    <i class="fas fa-share-alt"></i> Create QR for $QRC
+                </button>
+            </div>
+            <div class="text-center mt-4" id="qrCodeContainer" style="display: none;">
+                <h4>Your Generated QR Code:</h4>
+                <div id="qrCode" class="d-flex justify-content-center"></div>
+                <button id="shareGeneratedQRBtn" class="btn btn-success mt-2" style="display: none;">
+                    <i class="fa fa-share-alt"></i> Share This QR
+                </button>
+                 <small id="shareContextText" class="d-block mt-1 text-muted" style="display:none;"></small>
+            </div>
+        </section>
+
+        <!-- Join Our Community Section -->
+        <section id="community" class="text-center p-4 my-4 bg-light rounded shadow">
+            <h2><i class="fas fa-comments"></i> Join Our Community!</h2>
+            <p>Follow us, chat, and stay updated on our social media platforms. Be an early scanner!</p>
+            <a href="YOUR_X_PROFILE_LINK_HERE" id="twitterLink" target="_blank" rel="noopener noreferrer" class="btn btn-dark mx-1 my-1 social-btn">
+                <i class="fab fa-twitter"></i> X (Twitter)
+            </a>
+            <a href="YOUR_TELEGRAM_LINK_HERE" id="telegramLink" target="_blank" rel="noopener noreferrer" class="btn btn-info mx-1 my-1 social-btn">
+                <i class="fab fa-telegram-plane"></i> Telegram
+            </a>
+        </section>
+
+        <footer class="text-center mt-5 mb-3">
+            <p>© <span id="currentYear">2024</span> QR Coin (QRC). All rights reserved (for fun!).</p>
+            <p><small>Disclaimer: Cryptocurrency investment is subject to high market risk. Invest wisely and never invest more than you can afford to lose.</small></p>
+        </footer>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <a href="#top" id="scrollToTopBtn" class="btn btn-dark btn-floating" title="Go to top" style="display: none; position: fixed; bottom: 20px; right: 20px; border-radius: 50%; padding: 0.5rem 0.8rem;">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+    <!-- QRCode.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
+    <!-- SweetAlert2 library -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.26/dist/sweetalert2.min.js"></script>
+    <!-- Clipboard.js library for copy to clipboard -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+                  </html>
