@@ -55,16 +55,16 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentQRImageData = null; // Store the actual image data
 
     // --- Functions ---
-    // --- MODIFIED AND IMPROVED QR Code Display Function ---
+    // --- FINAL, CORRECTED QR Code Display Function with Margin ---
 function displayQRCode(textToEncode, width = 200, height = 200, isForCoinPromotion = false) {
-    // 1. Clear the old QR code and reset image data
     qrCodeDivEl.innerHTML = "";
     currentQRImageData = null; 
     
     try {
-        // 2. Create a new QRCode instance
-        // This will generate a <canvas> element inside 'qrCodeDivEl'
-        qrcodeInstance = new QRCode(qrCodeDivEl, {
+        // Step 1: Generate the QR code on a temporary, hidden canvas
+        // We create a temporary div to hold the raw QR code from the library
+        const tempDiv = document.createElement('div');
+        new QRCode(tempDiv, {
             text: textToEncode,
             width: width,
             height: height,
@@ -73,44 +73,64 @@ function displayQRCode(textToEncode, width = 200, height = 200, isForCoinPromoti
             correctLevel: QRCode.CorrectLevel.H
         });
 
-        // 3. Capture the image data directly (The core fix for the problem)
-        // We use setTimeout with a 0ms delay. This is a common trick to run code
-        // immediately after the browser has finished its current rendering task (drawing the canvas).
+        // Step 2: Add a margin (Quiet Zone) to the generated QR code
         setTimeout(() => {
-            const canvas = qrCodeDivEl.querySelector('canvas');
-            const img = qrCodeDivEl.querySelector('img'); // qrcode.js can sometimes generate an img tag as a fallback
+            const originalCanvas = tempDiv.querySelector('canvas');
+            if (originalCanvas) {
+                const margin = 15; // The size of the white border in pixels. Adjust if needed.
+                
+                // --- Create a new canvas that is larger than the original ---
+                const canvasWithMargin = document.createElement('canvas');
+                const ctx = canvasWithMargin.getContext('2d');
 
-            if (canvas) {
-                // If a canvas was created, convert it to a base64 PNG data URL and store it.
-                // This is the most reliable method.
-                currentQRImageData = canvas.toDataURL('image/png');
-                console.log('QR Canvas data captured successfully.');
-            } else if (img) {
-                // This is a fallback in case the library generates an <img> element instead of a canvas.
-                // We need to make sure the image is fully loaded before getting its data.
-                if (img.complete) {
-                    // If the image is already loaded, use its src.
-                    currentQRImageData = img.src;
-                    console.log('QR Image data captured from completed image.');
-                } else {
-                    // If not, wait for the 'onload' event to fire.
-                    img.onload = () => {
-                        currentQRImageData = img.src;
-                        console.log('QR Image data captured successfully after onload event.');
-                    };
-                }
+                // Set the new, larger dimensions
+                canvasWithMargin.width = originalCanvas.width + margin * 2;
+                canvasWithMargin.height = originalCanvas.height + margin * 2;
+
+                // --- Fill the new canvas with a white background ---
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvasWithMargin.width, canvasWithMargin.height);
+
+                // --- Draw the original QR code onto the center of the new canvas ---
+                ctx.drawImage(originalCanvas, margin, margin);
+
+                // Step 3: Use the new canvas with the margin for everything
+                
+                // For display on the screen
+                const displayImg = document.createElement('img');
+                displayImg.src = canvasWithMargin.toDataURL('image/png');
+                qrCodeDivEl.appendChild(displayImg);
+
+                // For download/sharing
+                currentQRImageData = displayImg.src;
+                
+                console.log('QR code with margin generated and ready.');
+
+            } else {
+                 console.error("Could not find the original canvas to add a margin.");
             }
-             
-            if (!currentQRImageData) {
-                 console.error("Fatal: Could not capture QR code image data after generation.");
+
+            // Step 4: Show the UI elements
+            qrCodeContainerEl.style.display = "block";
+            isCustomUserQRDisplayed = !isForCoinPromotion;
+            currentGeneratedQRDataForSharing = textToEncode;
+
+            if (isForCoinPromotion) {
+                shareContextTextEl.textContent = `Sharing a QR for ${COIN_NAME}!`;
+            } else {
+                shareContextTextEl.textContent = `Sharing your custom QR (and promoting ${COIN_NAME}!)`;
             }
-        }, 0); 
+            shareContextTextEl.style.display = "block";
+            shareGeneratedQRBtn.style.display = "inline-block";
+            downloadGeneratedQRBtn.style.display = "inline-block";
+
+        }, 50); // A small delay to ensure the library has drawn the canvas
 
     } catch (error) {
         console.error("QRCode generation error:", error);
         Swal.fire('Error', 'Could not generate QR code.', 'error');
-        return;
     }
+}
 
     // 4. Show the UI elements for the newly generated QR code
     qrCodeContainerEl.style.display = "block";
