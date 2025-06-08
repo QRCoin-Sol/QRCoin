@@ -1,0 +1,298 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+header .container {
+    position: relative;
+}
+
+.header-logo-title h1 {
+    margin-bottom: 0;
+    font-size: 1.8rem;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#coinLogo {
+    border-radius: 10px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.nav-tool-btn {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.7rem;
+}
+
+.nav-tool-btn i {
+    margin-right: 5px;
+}
+
+header .lead {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #1d2d35;
+    margin-bottom: 0.85rem;
+    font-weight: 600;
+}
+h2 { font-size: 1.75rem; }
+
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.btn {
+    padding: 12px 25px;
+    font-size: 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.btn-lg {
+    padding: 15px 35px;
+    font-size: 1.15rem;
+}
+
+.btn-success {
+    background-color: #1abc9c;
+    border-color: #1abc9c;
+}
+.btn-success:hover {
+    background-color: #16a085;
+    border-color: #16a085;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    border-color: #3498db;
+}
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+.btn-info {
+    background-color: #5dade2;
+    border-color: #5dade2;
+    color: #fff;
+}
+.btn-info:hover {
+    background-color: #4a90e2;
+    border-color: #4a90e2;
+}
+
+.btn-dark {
+    background-color: #343a40;
+    border-color: #343a40;
+    color: #fff;
+}
+.btn-dark:hover {
+    background-color: #23272b;
+    border-color: #23272b;
+}
+
+#qrCodeContainer {
+    margin-top: 25px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+#qrCode img {
+    display: block;
+    margin: 10px auto;
+    border: 1px solid #eee;
+}
+
+#contractAddress {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95rem;
+    background-color: #e9ecef;
+}
+
+.input-group .btn {
+    border-radius: 0 8px 8px 0;
+}
+.form-control {
+    border-radius: 8px;
+}
+
+section {
+    margin-bottom: 35px !important;
+    padding: 25px !important;
+}
+
+.shadow-lg {
+     box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+}
+.shadow {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.06) !important;
+}
+
+.feature-box {
+    background-color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.feature-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(40,100,150,0.12);
+}
+.feature-box i {
+    transition: transform 0.3s ease;
+}
+.feature-box:hover i {
+    transform: scale(1.1);
+}
+
+#how-to-buy .border {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    background-color: #fff;
+}
+#how-to-buy .border:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+#how-to-buy h5 {
+    font-size: 1.05rem;
+    margin-top: 0.5rem;
+    color: #333;
+    font-weight: 600;
+}
+#how-to-buy p.small {
+    font-size: 0.8rem;
+    color: #555;
+    line-height: 1.4;
+}
+#how-to-buy i.fa-2x {
+    color: #667eea;
+}
+
+#tokenomics .border {
+    padding: 12px 10px;
+    background-color: #f8f9fa;
+}
+#tokenomics strong {
+    display: block;
+    font-size: 0.85rem;
+    color: #764ba2;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+#tokenomics .col-md-3 div, #tokenomics .col-sm-6 div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 75px;
+    font-size: 0.9rem;
+}
+
+footer {
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+footer p {
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+footer small {
+    color: #777;
+}
+
+.social-btn i {
+    margin-right: 8px;
+}
+
+#scrollToTopBtn {
+    opacity: 0.7;
+    transition: opacity 0.3s ease-in-out, transform 0.2s ease;
+    z-index: 1000;
+}
+#scrollToTopBtn:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+#buy-now small.d-block {
+    font-size: 0.85em;
+}
+
+#shareContextText {
+    font-size: 0.8em;
+}
+
+.user-select-all { /* For fallback share URL */
+    user-select: all;
+    -webkit-user-select: all; /* Safari */
+    -moz-user-select: all;    /* Firefox */
+    -ms-user-select: all;     /* IE10+ */
+}
+
+
+@media (max-width: 768px) {
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.5rem; }
+    section { padding: 20px !important; }
+    .btn-lg { font-size: 1rem; padding: 12px 28px; }
+    #features .col-md-4, #how-to-buy .col-lg-3, #tokenomics .col-md-3, #tokenomics .col-sm-6 { /* Ensure all relevant cols get margin */
+        margin-bottom: 20px;
+    }
+    /* Remove margin from last child in each row context if needed, or use Bootstrap's gy- classes */
+    .social-btn { width: 100%; margin-bottom: 10px; }
+    .social-btn:last-child { margin-bottom: 0; }
+}
+
+@media (max-width: 576px) {
+    .header-logo-title {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    header .container {
+        flex-direction: column;
+    }
+    .nav-tool-btn {
+        margin-top: 10px;
+    }
+    .header-logo-title h1 {
+        font-size: 1.5rem;
+    }
+    #coinLogo {
+        width: 60px !important;
+        margin-bottom: 5px;
+    }
+    #tokenomics .col-sm-6 div {
+        min-height: 65px;
+        font-size: 0.85rem;
+    }
+    #tokenomics strong {
+        font-size: 0.8rem;
+    }
+}
