@@ -89,7 +89,7 @@ function displayQRCode(textToEncode, width = 200, height = 200, isForCoinPromoti
                 const ctx = canvasWithMargin.getContext('2d');
                 
                 // --- INCREASED MARGIN: Make the white border larger ---
-                const margin = 25; // Increased from 15 to 25 pixels for better scanning.
+                const margin = 50; // Increased from 15 to 25 pixels for better scanning.
 
                 // Set the final dimensions including the margin
                 canvasWithMargin.width = width + margin * 2;
