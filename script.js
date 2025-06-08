@@ -56,61 +56,76 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- Functions ---
     // --- FINAL, CORRECTED QR Code Display Function with Margin ---
+// --- FINAL, ROBUST QR Code Function with Guaranteed White Margin ---
 function displayQRCode(textToEncode, width = 200, height = 200, isForCoinPromotion = false) {
+    // Clear previous results
     qrCodeDivEl.innerHTML = "";
     currentQRImageData = null; 
     
     try {
-        // Step 1: Generate the QR code on a temporary, hidden canvas
-        // We create a temporary div to hold the raw QR code from the library
+        // Step 1: Generate the QR code in a temporary, off-screen div.
+        // This isolates the library's output from our main page.
         const tempDiv = document.createElement('div');
+        tempDiv.style.display = 'none'; // Keep it hidden
+        document.body.appendChild(tempDiv);
+
         new QRCode(tempDiv, {
             text: textToEncode,
             width: width,
             height: height,
             colorDark: "#000000",
-            colorLight: "#ffffff",
+            colorLight: "#ffffff", // Important for the QR's own background
             correctLevel: QRCode.CorrectLevel.H
         });
 
-        // Step 2: Add a margin (Quiet Zone) to the generated QR code
+        // Use a small delay to ensure the QRCode library has finished drawing.
         setTimeout(() => {
-            const originalCanvas = tempDiv.querySelector('canvas');
-            if (originalCanvas) {
-                const margin = 15; // The size of the white border in pixels. Adjust if needed.
-                
-                // --- Create a new canvas that is larger than the original ---
+            // Find the generated element, whether it's a <canvas> or an <img>
+            const sourceElement = tempDiv.querySelector('canvas, img');
+
+            if (sourceElement) {
+                // Step 2: Create a new, larger canvas to be our final image.
                 const canvasWithMargin = document.createElement('canvas');
                 const ctx = canvasWithMargin.getContext('2d');
+                
+                // --- INCREASED MARGIN: Make the white border larger ---
+                const margin = 25; // Increased from 15 to 25 pixels for better scanning.
 
-                // Set the new, larger dimensions
-                canvasWithMargin.width = originalCanvas.width + margin * 2;
-                canvasWithMargin.height = originalCanvas.height + margin * 2;
+                // Set the final dimensions including the margin
+                canvasWithMargin.width = width + margin * 2;
+                canvasWithMargin.height = height + margin * 2;
 
-                // --- Fill the new canvas with a white background ---
+                // --- GUARANTEED WHITE BACKGROUND: This is the critical fix ---
+                // First, set the fill color to white.
                 ctx.fillStyle = '#ffffff';
+                // Then, draw a white rectangle that covers the entire canvas.
                 ctx.fillRect(0, 0, canvasWithMargin.width, canvasWithMargin.height);
 
-                // --- Draw the original QR code onto the center of the new canvas ---
-                ctx.drawImage(originalCanvas, margin, margin);
+                // Step 3: Draw the original QR code onto the center of our new white canvas.
+                // The drawImage function works for both <canvas> and <img> sources.
+                ctx.drawImage(sourceElement, margin, margin);
 
-                // Step 3: Use the new canvas with the margin for everything
-                
-                // For display on the screen
+                // Step 4: Use the new image (with the white margin) for everything.
+                const finalImageDataUrl = canvasWithMargin.toDataURL('image/png');
+
+                // Set the image for display on the webpage
                 const displayImg = document.createElement('img');
-                displayImg.src = canvasWithMargin.toDataURL('image/png');
+                displayImg.src = finalImageDataUrl;
                 qrCodeDivEl.appendChild(displayImg);
 
-                // For download/sharing
-                currentQRImageData = displayImg.src;
+                // Store the same image data for the download/share buttons
+                currentQRImageData = finalImageDataUrl;
                 
-                console.log('QR code with margin generated and ready.');
-
+                console.log('Successfully generated QR code with a large, white margin.');
             } else {
-                 console.error("Could not find the original canvas to add a margin.");
+                console.error("QRCode library failed to generate a canvas or img element.");
+                Swal.fire('Error', 'Could not process the generated QR code.', 'error');
             }
 
-            // Step 4: Show the UI elements
+            // Clean up the temporary div from the document
+            document.body.removeChild(tempDiv);
+
+            // Show the UI elements as before
             qrCodeContainerEl.style.display = "block";
             isCustomUserQRDisplayed = !isForCoinPromotion;
             currentGeneratedQRDataForSharing = textToEncode;
@@ -124,7 +139,7 @@ function displayQRCode(textToEncode, width = 200, height = 200, isForCoinPromoti
             shareGeneratedQRBtn.style.display = "inline-block";
             downloadGeneratedQRBtn.style.display = "inline-block";
 
-        }, 50); // A small delay to ensure the library has drawn the canvas
+        }, 100); // Increased delay slightly for more reliability
 
     } catch (error) {
         console.error("QRCode generation error:", error);
@@ -132,19 +147,7 @@ function displayQRCode(textToEncode, width = 200, height = 200, isForCoinPromoti
     }
 }
 
-    // 4. Show the UI elements for the newly generated QR code
-    qrCodeContainerEl.style.display = "block";
-    isCustomUserQRDisplayed = !isForCoinPromotion;
-    currentGeneratedQRDataForSharing = textToEncode;
-
-    if (isForCoinPromotion) {
-        shareContextTextEl.textContent = `Sharing a QR for ${COIN_NAME}!`;
-    } else {
-        shareContextTextEl.textContent = `Sharing your custom QR (and promoting ${COIN_NAME}!)`;
-    }
-    shareContextTextEl.style.display = "block";
-    shareGeneratedQRBtn.style.display = "inline-block";
-    downloadGeneratedQRBtn.style.display = "inline-block";
+    
 }
 
     // Helper function to get QR image data
