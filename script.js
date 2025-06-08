@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const qrCodeContainerEl = document.getElementById("qrCodeContainer");
     const qrCodeDivEl = document.getElementById("qrCode");
     const shareGeneratedQRBtn = document.getElementById("shareGeneratedQRBtn");
+    const downloadGeneratedQRBtn = document.getElementById("downloadGeneratedQRBtn"); // New button element
     const shareContextTextEl = document.getElementById("shareContextText");
     const contractAddressInputEl = document.getElementById("contractAddress");
     const buyCoinLinkEl = document.getElementById("buyCoinLink");
@@ -81,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         shareContextTextEl.style.display = "block";
         shareGeneratedQRBtn.style.display = "inline-block";
+        downloadGeneratedQRBtn.style.display = "inline-block"; // Show download button
     }
 
     // --- Event Listeners ---
@@ -125,16 +127,22 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // === NEW SHARE LOGIC ===
     if (shareGeneratedQRBtn) {
-        shareGeneratedQRBtn.addEventListener("click", function () {
-            if (qrcodeInstance && currentGeneratedQRDataForSharing) {
+        shareGeneratedQRBtn.addEventListener("click", async function () {
+            const qrImg = qrCodeDivEl.querySelector('img');
+            if (!qrImg || !qrImg.src) {
+                 Swal.fire({ title: 'No QR Code!', text: 'Please generate a QR code first.', icon: 'warning', confirmButtonText: 'OK' });
+                 return;
+            }
+
+            try {
                 let shareTextContent;
                 let finalShareUrl;
 
                 if (isCustomUserQRDisplayed) {
                     let userContentPreview = currentGeneratedQRDataForSharing;
-                    if (userContentPreview.length > 20) userContentPreview = userContentPreview.substring(0,17) + '...';
-
+                    if (userContentPreview.length > 20) userContentPreview = userContentPreview.substring(0, 17) + '...';
                     shareTextContent = `I just created a QR for "${userContentPreview}" with ${COIN_NAME}'s tool! Check out $${COIN_SYMBOL} & create yours: ${COIN_WEBSITE_URL} ${PROMOTIONAL_HASHTAGS}`;
                     finalShareUrl = COIN_WEBSITE_URL;
                 } else {
@@ -142,33 +150,57 @@ document.addEventListener('DOMContentLoaded', function () {
                     finalShareUrl = currentGeneratedQRDataForSharing;
                 }
 
+                const response = await fetch(qrImg.src);
+                const blob = await response.blob();
+                const file = new File([blob], 'qrc-code.png', { type: 'image/png' });
+                
                 const shareData = {
                     title: `Shared via ${COIN_NAME} | $${COIN_SYMBOL}`,
                     text: shareTextContent,
-                    url: finalShareUrl
+                    url: finalShareUrl,
+                    files: [file]
                 };
 
-                if (navigator.share && typeof navigator.share === 'function') {
-                    navigator.share(shareData)
-                        .then(() => console.log('Successfully shared'))
-                        .catch((error) => {
-                            console.log('Error sharing via navigator.share:', error);
-                            fallbackShare(shareData);
-                        });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share(shareData);
                 } else {
-                    fallbackShare(shareData);
+                    console.log("File sharing not supported, falling back to text/URL share.");
+                    await navigator.share({
+                        title: shareData.title,
+                        text: shareData.text,
+                        url: shareData.url
+                    });
                 }
+            } catch (error) {
+                console.error('Error sharing:', error);
+                fallbackShare({
+                    text: `🚀 Join ${COIN_NAME} ($${COIN_SYMBOL})! Scan to buy on pump.fun or visit the site.`,
+                    url: currentGeneratedQRDataForSharing
+                });
+            }
+        });
+    }
+
+    // === NEW DOWNLOAD BUTTON LOGIC ===
+    if (downloadGeneratedQRBtn) {
+        downloadGeneratedQRBtn.addEventListener("click", function() {
+            const qrImg = qrCodeDivEl.querySelector('img');
+            if (qrImg && qrImg.src) {
+                const link = document.createElement('a');
+                link.href = qrImg.src;
+                link.download = 'qrc-generated-code.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                Swal.fire({ title: 'Download Started!', text: 'Your QR code image is being downloaded.', icon: 'success', timer: 2000, showConfirmButton: false });
             } else {
-                Swal.fire({ title: 'No QR Code!', text: 'Please generate a QR code first.', icon: 'warning', confirmButtonText: 'OK' });
+                Swal.fire('Error', 'No QR code image found to download.', 'error');
             }
         });
     }
 
     function fallbackShare(shareData) {
-        const twitterText = shareData.text;
-        const twitterUrl = shareData.url;
-        const twitterShareLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterText)}&url=${encodeURIComponent(twitterUrl)}`;
-
+        const twitterShareLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareData.text)}&url=${encodeURIComponent(shareData.url)}`;
          Swal.fire({
             title: 'Share This!',
             html: `
@@ -181,6 +213,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Smooth scroll and other utility functions
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             const href = this.getAttribute('href');
@@ -192,7 +225,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     const headerOffset = headerEl ? headerEl.offsetHeight : 60;
                     const elementPosition = targetElement.getBoundingClientRect().top;
                     const offsetPosition = elementPosition + window.pageYOffset - headerOffset - 15;
-
                     window.scrollTo({ top: offsetPosition, behavior: "smooth" });
                 }
             }
