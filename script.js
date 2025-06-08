@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const canvasWithMargin = document.createElement('canvas');
                     const ctx = canvasWithMargin.getContext('2d');
 
-                    const margin = 50;
+                    const margin = 30;
                     canvasWithMargin.width = width + margin * 2;
                     canvasWithMargin.height = height + margin * 2;
 
