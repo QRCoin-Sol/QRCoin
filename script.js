@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const qrCodeContainerEl = document.getElementById("qrCodeContainer");
     const qrCodeDivEl = document.getElementById("qrCode");
     const shareGeneratedQRBtn = document.getElementById("shareGeneratedQRBtn");
-    const downloadGeneratedQRBtn = document.getElementById("downloadGeneratedQRBtn"); // New button element
+    const downloadGeneratedQRBtn = document.getElementById("downloadGeneratedQRBtn");
     const shareContextTextEl = document.getElementById("shareContextText");
     const contractAddressInputEl = document.getElementById("contractAddress");
     const buyCoinLinkEl = document.getElementById("buyCoinLink");
@@ -52,10 +52,13 @@ document.addEventListener('DOMContentLoaded', function () {
     let qrcodeInstance = null;
     let currentGeneratedQRDataForSharing = null;
     let isCustomUserQRDisplayed = false;
+    let qrImageReady = false; // New flag to track QR image status
 
     // --- Functions ---
     function displayQRCode(textToEncode, width = 200, height = 200, isForCoinPromotion = false) {
         qrCodeDivEl.innerHTML = "";
+        qrImageReady = false; // Reset flag
+        
         try {
             qrcodeInstance = new QRCode(qrCodeDivEl, {
                 text: textToEncode,
@@ -65,6 +68,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
+
+            // Wait for the QR image to be created
+            setTimeout(() => {
+                const qrImg = qrCodeDivEl.querySelector('img') || qrCodeDivEl.querySelector('canvas');
+                if (qrImg) {
+                    qrImageReady = true;
+                    // If it's a canvas, convert to image
+                    if (qrImg.tagName === 'CANVAS') {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = qrImg.toDataURL();
+                        imgElement.style.display = 'block';
+                        qrImg.style.display = 'none';
+                        qrCodeDivEl.appendChild(imgElement);
+                    }
+                }
+            }, 100);
+
         } catch (error) {
             console.error("QRCode generation error:", error);
             Swal.fire('Error', 'Could not generate QR code.', 'error');
@@ -82,7 +102,26 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         shareContextTextEl.style.display = "block";
         shareGeneratedQRBtn.style.display = "inline-block";
-        downloadGeneratedQRBtn.style.display = "inline-block"; // Show download button
+        downloadGeneratedQRBtn.style.display = "inline-block";
+    }
+
+    // Helper function to get QR image
+    function getQRImage() {
+        let qrImg = qrCodeDivEl.querySelector('img');
+        
+        // If no img found, check for canvas and convert it
+        if (!qrImg) {
+            const canvas = qrCodeDivEl.querySelector('canvas');
+            if (canvas) {
+                const imgElement = document.createElement('img');
+                imgElement.src = canvas.toDataURL();
+                qrCodeDivEl.appendChild(imgElement);
+                canvas.style.display = 'none';
+                qrImg = imgElement;
+            }
+        }
+        
+        return qrImg;
     }
 
     // --- Event Listeners ---
@@ -91,14 +130,19 @@ document.addEventListener('DOMContentLoaded', function () {
             const text = inputTextEl.value.trim();
             if (text) {
                 displayQRCode(text, 200, 200, false);
-                 Swal.fire({
+                Swal.fire({
                     title: 'Custom QR Generated!',
                     text: 'Your custom QR code is ready.',
                     icon: 'success',
                     confirmButtonText: 'Awesome!'
                 });
             } else {
-                Swal.fire({ title: 'Input Required', text: 'Please enter text or a URL.', icon: 'warning', confirmButtonText: 'OK' });
+                Swal.fire({ 
+                    title: 'Input Required', 
+                    text: 'Please enter text or a URL.', 
+                    icon: 'warning', 
+                    confirmButtonText: 'OK' 
+                });
             }
         });
     }
@@ -119,21 +163,50 @@ document.addEventListener('DOMContentLoaded', function () {
     if (document.getElementById('copyCaBtn') && contractAddressInputEl) {
         const clipboardCA = new ClipboardJS('#copyCaBtn');
         clipboardCA.on('success', function (e) {
-             Swal.fire({ title: 'Copied!', text: 'Contract Address copied!', icon: 'success', timer: 2000, showConfirmButton: false, toast:true, position:'top-end' });
+             Swal.fire({ 
+                 title: 'Copied!', 
+                 text: 'Contract Address copied!', 
+                 icon: 'success', 
+                 timer: 2000, 
+                 showConfirmButton: false, 
+                 toast: true, 
+                 position: 'top-end' 
+             });
              e.clearSelection();
         });
         clipboardCA.on('error', function (e) {
-             Swal.fire({ title: 'Copy Failed', text: 'Please try manually.', icon: 'error', confirmButtonText: 'OK' });
+             Swal.fire({ 
+                 title: 'Copy Failed', 
+                 text: 'Please try manually.', 
+                 icon: 'error', 
+                 confirmButtonText: 'OK' 
+             });
         });
     }
 
-    // === NEW SHARE LOGIC ===
+    // === UPDATED SHARE LOGIC ===
     if (shareGeneratedQRBtn) {
         shareGeneratedQRBtn.addEventListener("click", async function () {
-            const qrImg = qrCodeDivEl.querySelector('img');
+            // Check if we have QR data
+            if (!currentGeneratedQRDataForSharing) {
+                Swal.fire({ 
+                    title: 'No QR Code!', 
+                    text: 'Please generate a QR code first.', 
+                    icon: 'warning', 
+                    confirmButtonText: 'OK' 
+                });
+                return;
+            }
+
+            const qrImg = getQRImage();
             if (!qrImg || !qrImg.src) {
-                 Swal.fire({ title: 'No QR Code!', text: 'Please generate a QR code first.', icon: 'warning', confirmButtonText: 'OK' });
-                 return;
+                Swal.fire({ 
+                    title: 'QR Image Not Ready!', 
+                    text: 'Please wait a moment and try again.', 
+                    icon: 'warning', 
+                    confirmButtonText: 'OK' 
+                });
+                return;
             }
 
             try {
@@ -181,10 +254,21 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // === NEW DOWNLOAD BUTTON LOGIC ===
+    // === UPDATED DOWNLOAD BUTTON LOGIC ===
     if (downloadGeneratedQRBtn) {
         downloadGeneratedQRBtn.addEventListener("click", function() {
-            const qrImg = qrCodeDivEl.querySelector('img');
+            // Check if we have QR data
+            if (!currentGeneratedQRDataForSharing) {
+                Swal.fire({
+                    title: 'No QR Code!', 
+                    text: 'Please generate a QR code first.', 
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            const qrImg = getQRImage();
             if (qrImg && qrImg.src) {
                 const link = document.createElement('a');
                 link.href = qrImg.src;
@@ -192,9 +276,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                Swal.fire({ title: 'Download Started!', text: 'Your QR code image is being downloaded.', icon: 'success', timer: 2000, showConfirmButton: false });
+                Swal.fire({ 
+                    title: 'Download Started!', 
+                    text: 'Your QR code image is being downloaded.', 
+                    icon: 'success', 
+                    timer: 2000, 
+                    showConfirmButton: false 
+                });
             } else {
-                Swal.fire('Error', 'No QR code image found to download.', 'error');
+                Swal.fire({
+                    title: 'QR Image Not Ready!', 
+                    text: 'Please wait a moment and try again.', 
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
             }
         });
     }
