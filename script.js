@@ -52,12 +52,12 @@ document.addEventListener('DOMContentLoaded', function () {
     let qrcodeInstance = null;
     let currentGeneratedQRDataForSharing = null;
     let isCustomUserQRDisplayed = false;
-    let qrImageReady = false; // New flag to track QR image status
+    let currentQRImageData = null; // Store the actual image data
 
     // --- Functions ---
     function displayQRCode(textToEncode, width = 200, height = 200, isForCoinPromotion = false) {
         qrCodeDivEl.innerHTML = "";
-        qrImageReady = false; // Reset flag
+        currentQRImageData = null;
         
         try {
             qrcodeInstance = new QRCode(qrCodeDivEl, {
@@ -69,21 +69,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 correctLevel: QRCode.CorrectLevel.H
             });
 
-            // Wait for the QR image to be created
-            setTimeout(() => {
-                const qrImg = qrCodeDivEl.querySelector('img') || qrCodeDivEl.querySelector('canvas');
-                if (qrImg) {
-                    qrImageReady = true;
-                    // If it's a canvas, convert to image
-                    if (qrImg.tagName === 'CANVAS') {
-                        const imgElement = document.createElement('img');
-                        imgElement.src = qrImg.toDataURL();
-                        imgElement.style.display = 'block';
-                        qrImg.style.display = 'none';
-                        qrCodeDivEl.appendChild(imgElement);
-                    }
+            // Wait for QR code to be fully generated and get the image data
+            const checkForQRImage = () => {
+                const img = qrCodeDivEl.querySelector('img');
+                const canvas = qrCodeDivEl.querySelector('canvas');
+                
+                if (img && img.src && img.complete) {
+                    currentQRImageData = img.src;
+                    console.log('QR Image ready:', currentQRImageData);
+                } else if (canvas) {
+                    currentQRImageData = canvas.toDataURL();
+                    console.log('QR Canvas ready, converted to image');
+                } else {
+                    // Keep checking every 50ms for up to 3 seconds
+                    setTimeout(checkForQRImage, 50);
                 }
-            }, 100);
+            };
+
+            // Start checking after a short delay
+            setTimeout(checkForQRImage, 100);
 
         } catch (error) {
             console.error("QRCode generation error:", error);
@@ -105,23 +109,28 @@ document.addEventListener('DOMContentLoaded', function () {
         downloadGeneratedQRBtn.style.display = "inline-block";
     }
 
-    // Helper function to get QR image
-    function getQRImage() {
-        let qrImg = qrCodeDivEl.querySelector('img');
-        
-        // If no img found, check for canvas and convert it
-        if (!qrImg) {
-            const canvas = qrCodeDivEl.querySelector('canvas');
-            if (canvas) {
-                const imgElement = document.createElement('img');
-                imgElement.src = canvas.toDataURL();
-                qrCodeDivEl.appendChild(imgElement);
-                canvas.style.display = 'none';
-                qrImg = imgElement;
-            }
+    // Helper function to get QR image data
+    function getQRImageData() {
+        // First check if we have stored image data
+        if (currentQRImageData) {
+            return currentQRImageData;
         }
-        
-        return qrImg;
+
+        // Try to get from img element
+        const img = qrCodeDivEl.querySelector('img');
+        if (img && img.src && img.complete) {
+            currentQRImageData = img.src;
+            return currentQRImageData;
+        }
+
+        // Try to get from canvas
+        const canvas = qrCodeDivEl.querySelector('canvas');
+        if (canvas) {
+            currentQRImageData = canvas.toDataURL();
+            return currentQRImageData;
+        }
+
+        return null;
     }
 
     // --- Event Listeners ---
@@ -198,12 +207,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const qrImg = getQRImage();
-            if (!qrImg || !qrImg.src) {
+            const imageData = getQRImageData();
+            if (!imageData) {
                 Swal.fire({ 
-                    title: 'QR Image Not Ready!', 
-                    text: 'Please wait a moment and try again.', 
-                    icon: 'warning', 
+                    title: 'Please wait...', 
+                    text: 'QR code is still being generated. Try again in a moment.', 
+                    icon: 'info', 
                     confirmButtonText: 'OK' 
                 });
                 return;
@@ -223,7 +232,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     finalShareUrl = currentGeneratedQRDataForSharing;
                 }
 
-                const response = await fetch(qrImg.src);
+                // Convert data URL to blob
+                const response = await fetch(imageData);
                 const blob = await response.blob();
                 const file = new File([blob], 'qrc-code.png', { type: 'image/png' });
                 
@@ -238,11 +248,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     await navigator.share(shareData);
                 } else {
                     console.log("File sharing not supported, falling back to text/URL share.");
-                    await navigator.share({
-                        title: shareData.title,
-                        text: shareData.text,
-                        url: shareData.url
-                    });
+                    if (navigator.share) {
+                        await navigator.share({
+                            title: shareData.title,
+                            text: shareData.text,
+                            url: shareData.url
+                        });
+                    } else {
+                        fallbackShare({
+                            text: shareTextContent,
+                            url: finalShareUrl
+                        });
+                    }
                 }
             } catch (error) {
                 console.error('Error sharing:', error);
@@ -268,10 +285,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const qrImg = getQRImage();
-            if (qrImg && qrImg.src) {
+            const imageData = getQRImageData();
+            if (!imageData) {
+                Swal.fire({
+                    title: 'Please wait...', 
+                    text: 'QR code is still being generated. Try again in a moment.', 
+                    icon: 'info',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            try {
                 const link = document.createElement('a');
-                link.href = qrImg.src;
+                link.href = imageData;
                 link.download = 'qrc-generated-code.png';
                 document.body.appendChild(link);
                 link.click();
@@ -283,11 +310,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     timer: 2000, 
                     showConfirmButton: false 
                 });
-            } else {
+            } catch (error) {
+                console.error('Download error:', error);
                 Swal.fire({
-                    title: 'QR Image Not Ready!', 
-                    text: 'Please wait a moment and try again.', 
-                    icon: 'warning',
+                    title: 'Download Failed', 
+                    text: 'There was an error downloading the QR code.', 
+                    icon: 'error',
                     confirmButtonText: 'OK'
                 });
             }
