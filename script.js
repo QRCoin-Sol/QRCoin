@@ -55,59 +55,77 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentQRImageData = null; // Store the actual image data
 
     // --- Functions ---
-    function displayQRCode(textToEncode, width = 200, height = 200, isForCoinPromotion = false) {
-        qrCodeDivEl.innerHTML = "";
-        currentQRImageData = null;
-        
-        try {
-            qrcodeInstance = new QRCode(qrCodeDivEl, {
-                text: textToEncode,
-                width: width,
-                height: height,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
+    // --- MODIFIED AND IMPROVED QR Code Display Function ---
+function displayQRCode(textToEncode, width = 200, height = 200, isForCoinPromotion = false) {
+    // 1. Clear the old QR code and reset image data
+    qrCodeDivEl.innerHTML = "";
+    currentQRImageData = null; 
+    
+    try {
+        // 2. Create a new QRCode instance
+        // This will generate a <canvas> element inside 'qrCodeDivEl'
+        qrcodeInstance = new QRCode(qrCodeDivEl, {
+            text: textToEncode,
+            width: width,
+            height: height,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
 
-            // Wait for QR code to be fully generated and get the image data
-            const checkForQRImage = () => {
-                const img = qrCodeDivEl.querySelector('img');
-                const canvas = qrCodeDivEl.querySelector('canvas');
-                
-                if (img && img.src && img.complete) {
+        // 3. Capture the image data directly (The core fix for the problem)
+        // We use setTimeout with a 0ms delay. This is a common trick to run code
+        // immediately after the browser has finished its current rendering task (drawing the canvas).
+        setTimeout(() => {
+            const canvas = qrCodeDivEl.querySelector('canvas');
+            const img = qrCodeDivEl.querySelector('img'); // qrcode.js can sometimes generate an img tag as a fallback
+
+            if (canvas) {
+                // If a canvas was created, convert it to a base64 PNG data URL and store it.
+                // This is the most reliable method.
+                currentQRImageData = canvas.toDataURL('image/png');
+                console.log('QR Canvas data captured successfully.');
+            } else if (img) {
+                // This is a fallback in case the library generates an <img> element instead of a canvas.
+                // We need to make sure the image is fully loaded before getting its data.
+                if (img.complete) {
+                    // If the image is already loaded, use its src.
                     currentQRImageData = img.src;
-                    console.log('QR Image ready:', currentQRImageData);
-                } else if (canvas) {
-                    currentQRImageData = canvas.toDataURL();
-                    console.log('QR Canvas ready, converted to image');
+                    console.log('QR Image data captured from completed image.');
                 } else {
-                    // Keep checking every 50ms for up to 3 seconds
-                    setTimeout(checkForQRImage, 50);
+                    // If not, wait for the 'onload' event to fire.
+                    img.onload = () => {
+                        currentQRImageData = img.src;
+                        console.log('QR Image data captured successfully after onload event.');
+                    };
                 }
-            };
+            }
+             
+            if (!currentQRImageData) {
+                 console.error("Fatal: Could not capture QR code image data after generation.");
+            }
+        }, 0); 
 
-            // Start checking after a short delay
-            setTimeout(checkForQRImage, 100);
-
-        } catch (error) {
-            console.error("QRCode generation error:", error);
-            Swal.fire('Error', 'Could not generate QR code.', 'error');
-            return;
-        }
-
-        qrCodeContainerEl.style.display = "block";
-        isCustomUserQRDisplayed = !isForCoinPromotion;
-        currentGeneratedQRDataForSharing = textToEncode;
-
-        if (isForCoinPromotion) {
-            shareContextTextEl.textContent = `Sharing a QR for ${COIN_NAME}!`;
-        } else {
-            shareContextTextEl.textContent = `Sharing your custom QR (and promoting ${COIN_NAME}!)`;
-        }
-        shareContextTextEl.style.display = "block";
-        shareGeneratedQRBtn.style.display = "inline-block";
-        downloadGeneratedQRBtn.style.display = "inline-block";
+    } catch (error) {
+        console.error("QRCode generation error:", error);
+        Swal.fire('Error', 'Could not generate QR code.', 'error');
+        return;
     }
+
+    // 4. Show the UI elements for the newly generated QR code
+    qrCodeContainerEl.style.display = "block";
+    isCustomUserQRDisplayed = !isForCoinPromotion;
+    currentGeneratedQRDataForSharing = textToEncode;
+
+    if (isForCoinPromotion) {
+        shareContextTextEl.textContent = `Sharing a QR for ${COIN_NAME}!`;
+    } else {
+        shareContextTextEl.textContent = `Sharing your custom QR (and promoting ${COIN_NAME}!)`;
+    }
+    shareContextTextEl.style.display = "block";
+    shareGeneratedQRBtn.style.display = "inline-block";
+    downloadGeneratedQRBtn.style.display = "inline-block";
+}
 
     // Helper function to get QR image data
     function getQRImageData() {
